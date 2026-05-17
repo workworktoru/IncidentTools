@@ -1,0 +1,75 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - main # mainブランチにPushされたときに自動起動
+
+env:
+  AWS_REGION: ap-northeast-1                   # 東京リージョン
+  ECR_REPOSITORY: incident-management-app       # 作成したECRリポジトリ名
+  ECS_CLUSTER: incident-management-cluster     # 作成したECSクラスター名
+  ECS_SERVICE: incident-management-service     # 作成したECSサービス名
+  ECS_TASK_DEFINITION: .aws/task-definition.json # ECSのタスク定義ファイルのパス
+
+permissions:
+  id-token: write # OIDC認証を行うために必須の設定
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. GitHubリポジトリからコードをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. AWSへの認証 (OIDCを使用して安全に接続)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }} # GitHubのSecretに保存したロールARN
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3. Amazon ECRへのログイン
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Docker Buildxの設定 (ARM64アーキテクチャでのビルドに必要)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5. DockerイメージのビルドとECRへのプッシュ (Graviton対応のためARM64でビルド)
+      - name: Build, tag, and push image to Amazon ECR
+        uses: docker/build-push-action@v5
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }} # コミットハッシュをタグにして一意にする
+        with:
+          context: .
+          platforms: linux/arm64 # コスト効率の良いGraviton向け設定
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha   # ビルドを高速化するためのキャッシュ
+          cache-to: type=gha,mode=max
+
+      # 6. ECSのタスク定義ファイルのイメージタグを最新に書き換え
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: web-app # タスク定義内で設定したコンテナ名
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+
+      # 7. AWS ECS（Fargate）へデプロイを実施
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true # デプロイが成功して安定するまで監視する

@@ -8,6 +8,8 @@ from typing import List, Optional
 from fastapi import FastAPI, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 from sqlmodel import Session, select
 
 # ロギング設定
@@ -364,6 +366,26 @@ def read_configuration_item(ci_id: uuid.UUID, session: Session = Depends(get_ses
     if not ci:
         raise HTTPException(status_code=404, detail="Configuration Item not found")
     return ci
+
+# --- Health Check ---
+
+@app.get("/health")
+async def health_check(session: Session = Depends(get_session)):
+    """データベース接続を含むヘルスチェック"""
+    try:
+        # シンプルなクエリで接続確認
+        session.exec(select(User)).first()
+        return {"status": "ok", "database_connection": "successful"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
+i.json"]:
+             raise HTTPException(status_code=404)
+        
+        index_file = os.path.join("static", "index.html")
+        if os.path.exists(index_file):
+            from fastapi.responses import FileResponse
+            return FileResponse(index_file)
+        raise HTTPException(status_code=404)
 
 # --- Health Check ---
 
