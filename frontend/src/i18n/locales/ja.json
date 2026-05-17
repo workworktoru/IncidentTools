@@ -192,5 +192,23 @@
     "searching": "分析およびナレッジベースを検索中...",
     "similarity": "類似度",
     "view_detail": "詳細を見る"
+  },
+  "inventory": {
+    "title": "構成アイテム一覧",
+    "subtitle": "ITインフラコンポーネントおよび資産の管理と追跡を行います。",
+    "new_ci": "新規構成アイテム",
+    "table_name": "アイテム名",
+    "table_type": "種別",
+    "table_environment": "環境",
+    "table_status": "ステータス",
+    "no_items_found": "構成アイテムが見つかりませんでした。",
+    "type": {
+      "Server": "サーバー",
+      "Database": "データベース",
+      "Network": "ネットワーク",
+      "Application": "アプリケーション",
+      "Cloud Service": "クラウドサービス",
+      "Other": "その他"
+    }
   }
 }

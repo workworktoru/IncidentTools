@@ -206,5 +206,23 @@
     "searching": "Analyzing and searching knowledge base...",
     "similarity": "Similarity",
     "view_detail": "View Details"
+  },
+  "inventory": {
+    "title": "CI Inventory",
+    "subtitle": "Manage and track your IT infrastructure components and assets.",
+    "new_ci": "New Configuration Item",
+    "table_name": "CI Name",
+    "table_type": "Type",
+    "table_environment": "Environment",
+    "table_status": "Status",
+    "no_items_found": "No configuration items found.",
+    "type": {
+      "Server": "Server",
+      "Database": "Database",
+      "Network": "Network",
+      "Application": "Application",
+      "Cloud Service": "Cloud Service",
+      "Other": "Other"
+    }
   }
 }

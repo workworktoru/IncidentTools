@@ -16,6 +16,7 @@ import { ReleaseList } from './pages/ReleaseList';
 import { CreateRelease } from './pages/CreateRelease';
 import { ReleaseDetail } from './pages/ReleaseDetail';
 import { AISearch } from './pages/AISearch';
+import { CIInventory } from './pages/CIInventory';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -53,7 +54,7 @@ function App() {
             <Route path="/releases/new" element={<CreateRelease />} />
             <Route path="/releases/:id" element={<ReleaseDetail />} />
 
-            <Route path="/inventory" element={<div className="text-center py-20 text-slate-500">{t('common.inventory')} {t('common.coming_soon')}</div>} />
+            <Route path="/inventory" element={<CIInventory />} />
             <Route path="/search" element={<AISearch />} />
           </Routes>
         </Layout>
