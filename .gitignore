@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+ENV/
+.env
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db
