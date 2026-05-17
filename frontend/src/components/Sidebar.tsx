@@ -1,9 +1,10 @@
 import { LayoutDashboard, AlertCircle, Database, PlusCircle, Settings, Search, ShieldAlert, GitPullRequest, Ship } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
-const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
+const SidebarItem = ({ to, icon: Icon, label, active }: { to: string, icon: LucideIcon, label: string, active: boolean }) => (
   <Link
     to={to}
     className={clsx(

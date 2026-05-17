@@ -1,9 +1,10 @@
 import { TrendingUp, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { incidentApi } from '../api/api';
 import { useTranslation } from 'react-i18next';
 
-const StatCard = ({ title, value, icon: Icon, color, trend }: { title: string, value: string | number, icon: any, color: string, trend?: string }) => (
+const StatCard = ({ title, value, icon: Icon, color, trend }: { title: string, value: string | number, icon: LucideIcon, color: string, trend?: string }) => (
   <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl flex flex-col gap-4 group hover:border-brand-500/50 transition-all duration-300">
     <div className="flex justify-between items-start">
       <div className={`p-3 rounded-xl bg-${color}-500/10 text-${color}-400 group-hover:scale-110 transition-transform duration-300`}>

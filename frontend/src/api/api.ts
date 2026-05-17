@@ -23,6 +23,7 @@ export const incidentApi = {
   create: (data: Partial<Incident>) => api.post<Incident>('/incidents/', data).then(res => res.data),
   update: (id: string, data: Partial<Incident>) => api.put<Incident>(`/incidents/${id}`, data).then(res => res.data),
   delete: (id: string) => api.delete(`/incidents/${id}`).then(res => res.data),
+  search: (query: string) => api.get<Incident[]>(`/incidents/search/`, { params: { query } }).then(res => res.data),
 };
 
 export const problemApi = {

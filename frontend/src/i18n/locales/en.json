@@ -195,5 +195,16 @@
       "Deployed": "Deployed",
       "Closed": "Closed"
     }
+  },
+  "search": {
+    "title": "AI Knowledge Search",
+    "subtitle": "Discover similar incidents and historical resolutions using AI semantic search.",
+    "placeholder": "Describe the issue in natural language (e.g. 'Network is slow in the Tokyo office')...",
+    "button": "Search",
+    "results_count": "Found {{count}} similar incidents",
+    "no_results": "No similar incidents found for your query.",
+    "searching": "Analyzing and searching knowledge base...",
+    "similarity": "Similarity",
+    "view_detail": "View Details"
   }
 }

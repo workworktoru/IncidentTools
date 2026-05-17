@@ -202,6 +202,30 @@ def delete_incident(incident_id: uuid.UUID, session: Session = Depends(get_sessi
     session.commit()
     return {"message": "Incident deleted successfully"}
 
+@app.get("/incidents/search/", response_model=List[Incident])
+def search_incidents(
+    query: str,
+    limit: int = Query(default=5, le=10),
+    session: Session = Depends(get_session)
+):
+    """
+    クエリ文字列を受け取り、ベクトル類似度検索を使用して類似したインシデントを検索します。
+    """
+    if not query:
+        return []
+    
+    try:
+        # クエリの埋め込みを生成
+        query_vector = get_embedding(query)
+        
+        # pgvectorを使用して類似度検索を実行
+        statement = select(Incident).order_by(Incident.embedding.cosine_distance(query_vector)).limit(limit)
+        results = session.exec(statement).all()
+        return results
+    except Exception as e:
+        logger.error(f"Search failed: {e}")
+        raise HTTPException(status_code=500, detail="Search operation failed")
+
 # --- Problem Endpoints ---
 
 @app.post("/problems/", response_model=Problem)
@@ -248,11 +272,9 @@ def update_problem(problem_id: uuid.UUID, problem_data: dict, session: Session =
 def create_change(change: Change, session: Session = Depends(get_session)):
     logger.info(f"POST /changes/ - Received data: {change.model_dump()}")
     try:
-        # ユーザーの存在確認（デバッグ用）
+        # ユーザーの存在確認
         requester = session.get(User, change.requested_by_id)
         if not requester:
-            logger.error(f"Requester with ID {change.requested_by_id} not found!")
-            # ここでユーザーを自動作成する（テスト用）
             new_user = User(
                 id=change.requested_by_id,
                 username=f"user_{str(change.requested_by_id)[:8]}",
@@ -261,16 +283,12 @@ def create_change(change: Change, session: Session = Depends(get_session)):
             )
             session.add(new_user)
             session.commit()
-            logger.info(f"Automatically created missing requester: {new_user.id}")
 
         session.add(change)
         session.commit()
         session.refresh(change)
-        logger.info(f"Successfully created change: {change.id}")
         return change
     except Exception as e:
-        logger.error(f"Failed to create change: {str(e)}")
-        logger.error(traceback.format_exc())
         session.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -310,7 +328,6 @@ def create_release(release: Release, session: Session = Depends(get_session)):
         session.refresh(release)
         return release
     except Exception as e:
-        logger.error(f"Error creating release: {e}")
         session.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -343,7 +360,6 @@ def update_release(release_id: uuid.UUID, release_data: dict, session: Session =
 
 @app.post("/configuration-items/", response_model=ConfigurationItem)
 def create_configuration_item(ci: ConfigurationItem, session: Session = Depends(get_session)):
-    """新しい構成アイテム(CI)を作成します"""
     session.add(ci)
     session.commit()
     session.refresh(ci)
@@ -355,30 +371,24 @@ def read_configuration_items(
     limit: int = Query(default=100, le=100),
     session: Session = Depends(get_session)
 ):
-    """構成アイテムの一覧を取得します"""
     cis = session.exec(select(ConfigurationItem).offset(offset).limit(limit)).all()
     return cis
 
 @app.get("/configuration-items/{ci_id}", response_model=ConfigurationItem)
 def read_configuration_item(ci_id: uuid.UUID, session: Session = Depends(get_session)):
-    """指定されたIDの構成アイテム詳細を取得します"""
     ci = session.get(ConfigurationItem, ci_id)
     if not ci:
         raise HTTPException(status_code=404, detail="Configuration Item not found")
     return ci
 
-# --- Health Check ---
+# --- Static Files & SPA Routing ---
 
-@app.get("/health")
-async def health_check(session: Session = Depends(get_session)):
-    """データベース接続を含むヘルスチェック"""
-    try:
-        # シンプルなクエリで接続確認
-        session.exec(select(User)).first()
-        return {"status": "ok", "database_connection": "successful"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
-i.json"]:
+if os.path.exists("static"):
+    app.mount("/assets", StaticFiles(directory="static/assets"), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(request: Request, full_path: str):
+        if full_path.startswith("api/") or full_path in ["docs", "redoc", "openapi.json"]:
              raise HTTPException(status_code=404)
         
         index_file = os.path.join("static", "index.html")
@@ -391,9 +401,7 @@ i.json"]:
 
 @app.get("/health")
 async def health_check(session: Session = Depends(get_session)):
-    """データベース接続を含むヘルスチェック"""
     try:
-        # シンプルなクエリで接続確認
         session.exec(select(User)).first()
         return {"status": "ok", "database_connection": "successful"}
     except Exception as e:

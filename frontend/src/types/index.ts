@@ -22,6 +22,8 @@ export interface Incident {
   title: string;
   description?: string;
   status: string;
+  impact: string;
+  urgency: string;
   priority: string;
   reported_at: string;
   resolved_at?: string;
@@ -58,6 +60,7 @@ export interface Change {
   scheduled_date?: string;
   requested_at: string;
   completed_at?: string;
+  requested_by_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -69,6 +72,7 @@ export interface Release {
   status: string;
   actual_date?: string;
   planned_at: string;
+  managed_by_id: string;
   created_at: string;
   updated_at: string;
 }
