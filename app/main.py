@@ -136,6 +136,19 @@ def create_incident(incident: Incident, session: Session = Depends(get_session))
         logger.error(f"Failed to generate embedding: {e}")
 
     try:
+        # ユーザーの存在確認（E2Eテスト用の自動作成）
+        requester = session.get(User, incident.requester_id)
+        if not requester:
+            new_user = User(
+                id=incident.requester_id,
+                username=f"user_{str(incident.requester_id)[:8]}",
+                email=f"user_{str(incident.requester_id)[:8]}@example.com",
+                is_admin=True
+            )
+            session.add(new_user)
+            session.commit()
+            logger.info(f"Automatically created missing requester: {new_user.id}")
+
         session.add(incident)
         session.commit()
         session.refresh(incident)

@@ -6,29 +6,8 @@ import os
 
 from sqlmodel import Field, SQLModel, Relationship, Column
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.types import UserDefinedType, JSON
 from sqlalchemy import create_engine
-
-# --- pgvector support ---
-
-class Vector(UserDefinedType):
-    def __init__(self, dim):
-        self.dim = dim
-
-    def get_col_spec(self, **kw):
-        return f"VECTOR({self.dim})"
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == "postgresql":
-            return dialect.type_descriptor(self)
-        else:
-            return dialect.type_descriptor(JSON)
-
-    def bind_processor(self, dialect):
-        return None
-
-    def result_processor(self, dialect, coltype):
-        return None
+from pgvector.sqlalchemy import Vector
 
 # --- Enums ---
 class IncidentStatus(str, Enum):
@@ -137,7 +116,7 @@ class Incident(ITILBase, table=True):
     assignee_id: Optional[uuid.UUID] = Field(default=None, foreign_key="users.id")
     ci_id: Optional[uuid.UUID] = Field(default=None, foreign_key="configuration_items.id")
 
-    embedding: Optional[List[float]] = Field(default=None, sa_column=Column(Vector(768), nullable=True))
+    embedding: Optional[List[float]] = Field(default=None, sa_column=Column(Vector(768), nullable=True), exclude=True)
 
     problems: List["Problem"] = Relationship(link_model=IncidentProblemMap, back_populates="incidents")
 

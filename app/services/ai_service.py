@@ -33,9 +33,9 @@ def get_embedding(text: str) -> List[float]:
             task_type="retrieval_document",
             title="Incident Embedding"
         )
-        # データベースの次元数(768)に合わせてスライスする（次元不一致エラー回避のため）
+        # データベースの次元数(768)に合わせてスライスし、リストに変換する
         embedding = result['embedding']
-        return embedding[:768]
+        return list(embedding[:768])
     except Exception as e:
         print(f"Error calling Gemini API for embedding: {e}")
         # 実運用環境では適切に例外を再送出するか、フォールバックを検討する

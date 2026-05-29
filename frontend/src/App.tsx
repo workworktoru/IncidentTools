@@ -17,6 +17,7 @@ import { CreateRelease } from './pages/CreateRelease';
 import { ReleaseDetail } from './pages/ReleaseDetail';
 import { AISearch } from './pages/AISearch';
 import { CIInventory } from './pages/CIInventory';
+import { Settings } from './pages/Settings';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
@@ -56,6 +57,7 @@ function App() {
 
             <Route path="/inventory" element={<CIInventory />} />
             <Route path="/search" element={<AISearch />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </Layout>
       </BrowserRouter>
