@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { incidentApi } from '../api/api';
-import { ArrowLeft, LoaderCircle, Trash2, Save, Clock, Edit3 } from 'lucide-react';
+import { incidentApi, ciApi } from '../api/api';
+import { ArrowLeft, LoaderCircle, Trash2, Save, Clock, Edit3, Database } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { clsx } from 'clsx';
@@ -20,6 +20,12 @@ export const IncidentDetail = () => {
     queryKey: ['incident', id],
     queryFn: () => incidentApi.get(id!),
     enabled: !!id,
+  });
+
+  const { data: ci } = useQuery({
+    queryKey: ['configuration-item', incident?.ci_id],
+    queryFn: () => ciApi.get(incident!.ci_id!),
+    enabled: !!incident?.ci_id,
   });
 
   const currentStatus = status ?? incident?.status ?? '';
@@ -94,11 +100,32 @@ export const IncidentDetail = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 backdrop-blur-sm shadow-xl">
-            <div className="text-xs font-mono text-slate-500 mb-2">#{incident.id}</div>
-            <h1 className="text-3xl font-bold text-white mb-4">{incident.title}</h1>
-            <div className="prose prose-invert max-w-none text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {incident.description}
+          <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 backdrop-blur-sm shadow-xl flex flex-col gap-6">
+            <div>
+              <div className="text-xs font-mono text-slate-500 mb-2">#{incident.id}</div>
+              <h1 className="text-3xl font-bold text-white mb-4">{incident.title}</h1>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">{t('incidents.form_description')}</h3>
+              <div className="p-6 bg-slate-950 border border-slate-800 rounded-2xl text-slate-300 whitespace-pre-wrap leading-relaxed">
+                {incident.description || "No description provided."}
+              </div>
+
+              {ci && (
+                <div 
+                  onClick={() => navigate(`/inventory/${ci.id}`)}
+                  className="p-4 bg-brand-500/5 border border-brand-500/20 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-brand-500/10 transition-colors group"
+                >
+                  <div className="p-2 rounded-lg bg-brand-500/20 text-brand-400 group-hover:scale-110 transition-transform">
+                    <Database className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-brand-500 uppercase tracking-widest">Affected Asset</div>
+                    <div className="text-slate-200 font-semibold">{ci.name} ({ci.type})</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

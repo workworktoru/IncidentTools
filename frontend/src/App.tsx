@@ -17,6 +17,8 @@ import { CreateRelease } from './pages/CreateRelease';
 import { ReleaseDetail } from './pages/ReleaseDetail';
 import { AISearch } from './pages/AISearch';
 import { CIInventory } from './pages/CIInventory';
+import { CreateCI } from './pages/CreateCI';
+import { CIDetail } from './pages/CIDetail';
 import { Settings } from './pages/Settings';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
@@ -56,6 +58,8 @@ function App() {
             <Route path="/releases/:id" element={<ReleaseDetail />} />
 
             <Route path="/inventory" element={<CIInventory />} />
+            <Route path="/inventory/new" element={<CreateCI />} />
+            <Route path="/inventory/:id" element={<CIDetail />} />
             <Route path="/search" element={<AISearch />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>

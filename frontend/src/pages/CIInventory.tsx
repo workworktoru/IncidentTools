@@ -3,9 +3,11 @@ import { ciApi } from '../api/api';
 import { Database, PlusCircle, MoreHorizontal, Server, Globe, ShieldCheck } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 export const CIInventory = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data: items, isLoading } = useQuery({
     queryKey: ['configuration-items'],
     queryFn: () => ciApi.list(),
@@ -37,7 +39,10 @@ export const CIInventory = () => {
           <h1 className="text-3xl font-bold text-white mb-2">{t('inventory.title')}</h1>
           <p className="text-slate-400">{t('inventory.subtitle')}</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-brand-500/20">
+        <button 
+          onClick={() => navigate('/inventory/new')}
+          className="flex items-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl transition-all shadow-lg shadow-brand-500/20"
+        >
           <PlusCircle className="w-5 h-5" />
           {t('inventory.new_ci')}
         </button>
@@ -63,7 +68,11 @@ export const CIInventory = () => {
               ))
             ) : items?.length ? (
               items.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-800/30 transition-colors group">
+                <tr 
+                  key={item.id} 
+                  onClick={() => navigate(`/inventory/${item.id}`)}
+                  className="hover:bg-slate-800/30 transition-colors group cursor-pointer"
+                >
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-slate-800 text-slate-400 group-hover:text-brand-400 transition-colors">

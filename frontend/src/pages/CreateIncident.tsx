@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { incidentApi, userApi } from '../api/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { incidentApi, userApi, ciApi } from '../api/api';
 import { ArrowRight, LoaderCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,7 +18,13 @@ export const CreateIncident = () => {
     impact: 'Medium',
     urgency: 'Medium',
     priority: 'Medium',
-    category: 'Software'
+    category: 'Software',
+    ci_id: ''
+  });
+
+  const { data: cis = [] } = useQuery({
+    queryKey: ['configuration-items'],
+    queryFn: ciApi.list
   });
 
   const mutation = useMutation({
@@ -27,6 +33,7 @@ export const CreateIncident = () => {
       const payload: Partial<Incident> = {
         ...data,
         requester_id: testUserId,
+        ci_id: data.ci_id || undefined
       };
       return incidentApi.create(payload);
     },
@@ -86,6 +93,21 @@ export const CreateIncident = () => {
             placeholder={t('incidents.form_description_placeholder')}
             className="px-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all resize-none"
           />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="incident-ci" className="text-sm font-semibold text-slate-400 ml-1">Affected Configuration Item (Optional)</label>
+          <select 
+            id="incident-ci"
+            value={formData.ci_id}
+            onChange={e => setFormData({...formData, ci_id: e.target.value})}
+            className="px-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl focus:outline-none focus:border-brand-500 transition-all appearance-none cursor-pointer"
+          >
+            <option value="">None / Not Applicable</option>
+            {cis.map(ci => (
+              <option key={ci.id} value={ci.id}>{ci.name} ({ci.type})</option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-6">

@@ -49,7 +49,10 @@ export const releaseApi = {
 
 export const ciApi = {
   list: () => api.get<ConfigurationItem[]>('/configuration-items/').then(res => res.data),
+  get: (id: string) => api.get<ConfigurationItem>(`/configuration-items/${id}`).then(res => res.data),
   create: (data: Partial<ConfigurationItem>) => api.post<ConfigurationItem>('/configuration-items/', data).then(res => res.data),
+  update: (id: string, data: Partial<ConfigurationItem>) => api.put<ConfigurationItem>(`/configuration-items/${id}`, data).then(res => res.data),
+  delete: (id: string) => api.delete(`/configuration-items/${id}`).then(res => res.data),
 };
 
 export default api;
