@@ -64,6 +64,8 @@ jobs:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: web-app # タスク定義内で設定したコンテナ名
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          environment-variables: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
 
       # 7. AWS ECS（Fargate）へデプロイを実施
       - name: Deploy Amazon ECS task definition
